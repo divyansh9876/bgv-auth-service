@@ -14,7 +14,7 @@ COPY . .
 RUN mvn clean package -DskipTests
 
 # Use a lightweight JRE image to run the app
-FROM eclipse-temurin:17-jre
+FROM eclipse-temurin:21-jre
 
 WORKDIR /app
 
