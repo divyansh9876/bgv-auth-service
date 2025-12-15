@@ -1,0 +1,510 @@
+{
+	"info": {
+		"_postman_id": "bgv-auth-service-collection",
+		"name": "BGV Auth Service",
+		"description": "Complete authentication microservice for Background Verification SaaS\n\n**Endpoints:**\n- Register/Login (LOCAL auth)\n- Google OAuth\n- Token Refresh\n- Forgot/Reset Password\n- Logout (single device & all devices)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"SecurePassword123!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "register"]
+						},
+						"description": "Register a new user with email and password (LOCAL auth only).\n\n**Security:**\n- Only creates LOCAL auth users\n- Email must be unique\n- Password is hashed with BCrypt"
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"SecurePassword123!\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/auth/register",
+									"host": ["{{baseUrl}}"],
+									"path": ["auth", "register"]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"success\": true,\n  \"message\": null,\n  \"data\": {\n    \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n    \"refreshToken\": \"550e8400-e29b-41d4-a716-446655440000\"\n  }\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    if (jsonData.success && jsonData.data) {",
+									"        pm.environment.set(\"accessToken\", jsonData.data.accessToken);",
+									"        pm.environment.set(\"refreshToken\", jsonData.data.refreshToken);",
+									"        console.log(\"Tokens saved to environment\");",
+									"    }",
+									"}"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"SecurePassword123!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "login"]
+						},
+						"description": "Login with email and password (LOCAL auth only).\n\n**Security:**\n- Only works for LOCAL users\n- Google users must use Google auth\n- BLOCKED users cannot login"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    if (jsonData.success && jsonData.data) {",
+									"        pm.environment.set(\"accessToken\", jsonData.data.accessToken);",
+									"        pm.environment.set(\"refreshToken\", jsonData.data.refreshToken);",
+									"        console.log(\"Tokens saved to environment\");",
+									"    }",
+									"}"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Google Auth",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"idToken\": \"{{googleIdToken}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/google",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "google"]
+						},
+						"description": "Authenticate with Google ID token (signup/login).\n\n**How to get Google ID Token:**\n1. Use Google Sign-In JavaScript library on frontend\n2. Or use Google OAuth 2.0 Playground\n3. Set `googleIdToken` environment variable\n\n**Security:**\n- Verifies Google ID token\n- Validates email verification\n- Creates user if not exists"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    if (jsonData.success && jsonData.data) {",
+									"        pm.environment.set(\"accessToken\", jsonData.data.accessToken);",
+									"        pm.environment.set(\"refreshToken\", jsonData.data.refreshToken);",
+									"        console.log(\"Tokens saved to environment\");",
+									"    }",
+									"}"
+								]
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Token Management",
+			"item": [
+				{
+					"name": "Refresh Token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/refresh",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "refresh"]
+						},
+						"description": "Refresh access token using refresh token.\n\n**Security:**\n- Old refresh token is deleted\n- New tokens are issued\n- BLOCKED users cannot refresh tokens"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    if (jsonData.success && jsonData.data) {",
+									"        pm.environment.set(\"accessToken\", jsonData.data.accessToken);",
+									"        pm.environment.set(\"refreshToken\", jsonData.data.refreshToken);",
+									"        console.log(\"New tokens saved to environment\");",
+									"    }",
+									"}"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/logout",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "logout"]
+						},
+						"description": "Logout from current device by invalidating refresh token.\n\n**How it works:**\n- Deletes the refresh token from database\n- Access token remains valid until expiry (stateless JWT)\n- Client should delete tokens from storage\n\n**Note:**\n- Access tokens are stateless and cannot be immediately invalidated\n- They will expire naturally (default: 1 hour)\n- Refresh token deletion prevents getting new access tokens"
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"refreshToken\": \"550e8400-e29b-41d4-a716-446655440000\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/auth/logout",
+									"host": ["{{baseUrl}}"],
+									"path": ["auth", "logout"]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"success\": true,\n  \"message\": \"Logged out successfully\",\n  \"data\": null\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    console.log(\"Logged out successfully\");",
+									"    console.log(\"Note: Client should delete tokens from storage\");",
+									"    // Optionally clear tokens from environment",
+									"    // pm.environment.unset(\"accessToken\");",
+									"    // pm.environment.unset(\"refreshToken\");",
+									"}"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Logout All Devices",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"description": "JWT access token"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/auth/logout-all",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "logout-all"]
+						},
+						"description": "Logout from all devices by invalidating all refresh tokens for the user.\n\n**Authentication Required:**\n- Requires valid JWT access token in Authorization header\n- Extracts userId from token\n\n**How it works:**\n- Deletes all refresh tokens for the authenticated user\n- User will be logged out from all devices\n- Access tokens remain valid until expiry\n\n**Use Cases:**\n- Security breach\n- Lost device\n- Account compromise"
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{accessToken}}"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/auth/logout-all",
+									"host": ["{{baseUrl}}"],
+									"path": ["auth", "logout-all"]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"success\": true,\n  \"message\": \"Logged out from all devices successfully\",\n  \"data\": null\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    console.log(\"Logged out from all devices\");",
+									"    console.log(\"All refresh tokens invalidated\");",
+									"}"
+								]
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Password Reset",
+			"item": [
+				{
+					"name": "Forgot Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"user@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/forgot-password",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "forgot-password"]
+						},
+						"description": "Request password reset link (LOCAL users only).\n\n**Security Features:**\n- Email enumeration prevention (always returns same response)\n- Only works for LOCAL users\n- Token expires in 1 hour\n- Old tokens are invalidated\n\n**Development:**\n- Check application logs for reset token\n- Token format: UUID\n\n**Production:**\n- Reset link sent via email"
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"email\": \"user@example.com\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/auth/forgot-password",
+									"host": ["{{baseUrl}}"],
+									"path": ["auth", "forgot-password"]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"success\": true,\n  \"message\": \"If the email exists, a password reset link has been sent.\",\n  \"data\": null\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    console.log(\"Password reset requested. Check application logs for reset token.\");",
+									"    console.log(\"In production, check email for reset link.\");",
+									"}"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Reset Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"token\": \"{{resetToken}}\",\n  \"newPassword\": \"NewSecurePassword123!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/reset-password",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "reset-password"]
+						},
+						"description": "Reset password using reset token from forgot password email.\n\n**Requirements:**\n- Valid reset token (from forgot password)\n- Token not expired (1 hour validity)\n- Token not already used\n- New password (min 8 characters)\n\n**Security:**\n- Token can only be used once\n- All refresh tokens are invalidated after reset\n- Only works for LOCAL users"
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"token\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"newPassword\": \"NewSecurePassword123!\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/auth/reset-password",
+									"host": ["{{baseUrl}}"],
+									"path": ["auth", "reset-password"]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"success\": true,\n  \"message\": \"Password has been reset successfully\",\n  \"data\": null\n}"
+						},
+						{
+							"name": "Invalid Token",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"token\": \"invalid-token\",\n  \"newPassword\": \"NewSecurePassword123!\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/auth/reset-password",
+									"host": ["{{baseUrl}}"],
+									"path": ["auth", "reset-password"]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"success\": false,\n  \"message\": \"Invalid or expired reset token\",\n  \"data\": null\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    console.log(\"Password reset successful!\");",
+									"    console.log(\"Note: All refresh tokens have been invalidated.\");",
+									"} else if (pm.response.code === 401) {",
+									"    console.log(\"Reset failed: Invalid or expired token\");",
+									"}"
+								]
+							}
+						}
+					]
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	]
+}
