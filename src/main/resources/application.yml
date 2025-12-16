@@ -3,9 +3,9 @@ spring:
     name: bgv-auth-service
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/bgv_auth_db
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:postgres}
+    url: jdbc:postgresql://dpg-d50f7vp5pdvs739215kg-a:5432/bgv_auth_db
+    username: ${DB_USERNAME:bgv_auth_db_user}
+    password: ${DB_PASSWORD:wIF3oEkjUfLI0glZ7aLZP5J1CdJEsgtq}
     driver-class-name: org.postgresql.Driver
 
   jpa:
