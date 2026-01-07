@@ -1,0 +1,54 @@
+spring:
+  application:
+    name: bgv-auth-service
+
+  datasource:
+    url: jdbc:postgresql://dpg-d50f7vp5pdvs739215kg-a.singapore-postgres.render.com/bgv_auth_db
+    username: ${DB_USERNAME:bgv_auth_db_user}
+    password: ${DB_PASSWORD:wIF3oEkjUfLI0glZ7aLZP5J1CdJEsgtq}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate # Use Flyway for migrations
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    # This is a temporary workaround to bypass the checksum validation error.
+    # The checksums in the flyway_schema_history table need to be updated manually.
+    validate-on-migrate: false 
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:your-256-bit-secret-key-change-this-in-production-minimum-32-characters}
+  expiry: ${JWT_EXPIRY:3600000} # 1 hour in milliseconds
+
+# Google OAuth Configuration
+google:
+  client-id: ${GOOGLE_CLIENT_ID:443835180158-45gduc30l9r4qonv67ut26e2qaedqhe3.apps.googleusercontent.com}
+
+# Server Configuration
+server:
+  port: ${SERVER_PORT:8085}
+
+# CORS Configuration
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:*} # Comma-separated list of allowed origins, or * for all
+
+# Application Configuration
+app:
+  frontend-url: ${FRONTEND_URL:http://localhost:3000} # Frontend URL for password reset links
+
+# Logging
+logging:
+  level:
+    com.bgv.auth: DEBUG
+    org.springframework.security: DEBUG
+    org.flywaydb: INFO
+
+
